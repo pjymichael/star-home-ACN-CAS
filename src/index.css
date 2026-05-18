@@ -813,6 +813,225 @@ h2 {
   margin-top: 4px;
 }
 
+.sheet__footer--single {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── Range slider ─────────────────────────────────────────────────────────── */
+.rs-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.rs-histo {
+  display: flex;
+  align-items: flex-end;
+  height: 52px;
+  gap: 2px;
+  padding: 0 1px;
+}
+
+.rs-histo__bar {
+  flex: 1;
+  background: var(--line);
+  border-radius: 3px 3px 0 0;
+  min-height: 6px;
+  transition: background 0.1s;
+}
+
+.rs-histo__bar.is-active {
+  background: var(--accent);
+}
+
+.rs-slider {
+  position: relative;
+  height: 28px;
+  display: flex;
+  align-items: center;
+}
+
+.rs-slider__track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--line);
+  border-radius: 2px;
+}
+
+.rs-slider__fill {
+  position: absolute;
+  height: 4px;
+  background: var(--accent);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.rs-slider__input {
+  position: absolute;
+  width: 100%;
+  pointer-events: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  outline: none;
+}
+
+.rs-slider__input::-webkit-slider-runnable-track {
+  -webkit-appearance: none;
+  height: 4px;
+  background: transparent;
+}
+
+.rs-slider__input::-webkit-slider-thumb {
+  pointer-events: all;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--brand);
+  border: 3px solid #fff;
+  box-shadow: 0 1px 6px rgba(10, 31, 68, 0.3);
+  cursor: grab;
+  margin-top: -9px;
+}
+
+.rs-slider__input:active::-webkit-slider-thumb {
+  cursor: grabbing;
+  box-shadow: 0 0 0 4px rgba(10, 31, 68, 0.12), 0 1px 6px rgba(10, 31, 68, 0.3);
+}
+
+.rs-slider__input::-moz-range-track {
+  height: 4px;
+  background: transparent;
+}
+
+.rs-slider__input::-moz-range-thumb {
+  pointer-events: all;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--brand);
+  border: 3px solid #fff;
+  box-shadow: 0 1px 6px rgba(10, 31, 68, 0.3);
+  cursor: grab;
+}
+
+/* ── Range inputs (£ min/max fields) ─────────────────────────────────────── */
+.range-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.range-input {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.range-input__label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.range-input__field {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  padding: 0 12px;
+  gap: 4px;
+  height: 44px;
+  transition: border-color 0.15s;
+}
+
+.range-input__field:focus-within {
+  border-color: var(--brand);
+}
+
+.range-input__affix {
+  font-size: 14px;
+  color: var(--muted);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.range-input__affix--right {
+  margin-left: auto;
+}
+
+.range-input__field input {
+  border: none;
+  outline: none;
+  font-size: 15px;
+  font-weight: 500;
+  background: transparent;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  color: var(--ink);
+}
+
+.range-input__field input::placeholder {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+/* ── Popular range chips ──────────────────────────────────────────────────── */
+.popular-ranges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+  align-items: center;
+}
+
+.popular-ranges__label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  width: 100%;
+}
+
+.popular-chip {
+  background: transparent;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  color: var(--ink);
+}
+
+.popular-chip:hover {
+  border-color: var(--ink-soft);
+}
+
+.popular-chip.is-active {
+  border-color: var(--ink);
+  border-width: 2px;
+  font-weight: 600;
+}
+
 /* Map */
 .map-wrap {
   height: 60vh;

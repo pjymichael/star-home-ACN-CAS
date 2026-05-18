@@ -196,6 +196,7 @@ export default function ResultsPage() {
         listing={listing}
         filters={filters}
         onApply={setFilters}
+        properties={all}
       />
       <CompareBar />
     </div>
