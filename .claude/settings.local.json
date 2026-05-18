@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(command -v node npm npx python python3)",
+      "Read(//mnt/c/Users/m.pang/AppData/Local/Programs/**)",
+      "Bash(npm -v)",
+      "Bash(npm --version)",
+      "Read(//usr/lib/**)",
+      "Read(//usr/local/lib/**)",
+      "Read(//usr/**)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\m.pang\\\\OneDrive - Accenture\\\\Desktop\\\\Learning\\\\Core Analyst School \\(CAS\\)\\\\Star Home\" -Recurse -File)",
+      "Bash(Select-Object FullName, Extension)",
+      "Bash(Sort-Object FullName)",
+      "Bash(Format-Table -AutoSize)"
+    ]
+  }
+}
