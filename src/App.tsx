@@ -8,6 +8,7 @@ import PropertyDetailPage from "./pages/PropertyDetailPage";
 import BookmarksPage from "./pages/BookmarksPage";
 import RecentlyViewedPage from "./pages/RecentlyViewedPage";
 import ComparePage from "./pages/ComparePage";
+import AgentDetailPage from "./pages/AgentDetailPage";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { isVerified } = useAuth();
@@ -72,6 +73,14 @@ export default function App() {
           element={
             <RequireAuth>
               <ComparePage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/agent/:id"
+          element={
+            <RequireAuth>
+              <AgentDetailPage />
             </RequireAuth>
           }
         />

@@ -50,3 +50,19 @@ export const EMPTY_FILTERS: Filters = {
   types: [],
   bedrooms: [],
 };
+
+export interface Agent {
+  id: string;
+  name: string;
+  position: string;
+  area: string;
+  photo: string;
+  email: string;
+  phone: string;
+  bio: string;
+  yearsExperience: number;
+  specialties: string[];
+  languages: string[];
+  rating: number;
+  reviewCount: number;
+}

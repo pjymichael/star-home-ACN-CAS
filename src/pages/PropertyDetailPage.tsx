@@ -1,10 +1,13 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { findProperty, propertiesInArea } from "../data/properties";
+import { agentForArea } from "../data/agents";
 import { useBookmarks } from "../hooks/useBookmarks";
 import { useRecentlyViewed } from "../hooks/useRecentlyViewed";
 import PhotoCarousel from "../components/PhotoCarousel";
 import MiniPropertyCard from "../components/MiniPropertyCard";
+import AgentCard from "../components/AgentCard";
+import MessengerSheet from "../components/MessengerSheet";
 import { formatPrice } from "../utils/format";
 
 export default function PropertyDetailPage() {
@@ -12,7 +15,9 @@ export default function PropertyDetailPage() {
   const navigate = useNavigate();
   const { has, toggle } = useBookmarks();
   const { record } = useRecentlyViewed();
+  const [chatOpen, setChatOpen] = useState(false);
   const property = findProperty(id);
+  const agent = property ? agentForArea(property.area) : null;
 
   useEffect(() => {
     if (property) record(property.id);
@@ -112,6 +117,14 @@ export default function PropertyDetailPage() {
           </a>
         </section>
 
+        {agent && (
+          <AgentCard
+            agent={agent}
+            property={property}
+            onMessage={() => setChatOpen(true)}
+          />
+        )}
+
         {similar.length > 0 && (
           <section className="similar-properties">
             <div className="similar-properties__head">
@@ -134,14 +147,41 @@ export default function PropertyDetailPage() {
       </div>
 
       <div className="detail-foot">
-        <button type="button" className="btn btn--ghost" onClick={() => toggle(property.id)}>
-          {saved ? "Favourited" : "Favourite"}
+        <button
+          type="button"
+          className={`btn btn--ghost detail-foot__fav${saved ? " is-active" : ""}`}
+          onClick={() => toggle(property.id)}
+          aria-pressed={saved}
+        >
+          <FavIcon filled={saved} />
+          <span>{saved ? "Favourited" : "Favourite"}</span>
         </button>
-        <button type="button" className="btn btn--primary btn--block" onClick={() => alert("In a real app this would contact the Star Homes agent for this listing.")}>
-          Request more info
+        <button
+          type="button"
+          className="btn btn--primary btn--block"
+          onClick={() => setChatOpen(true)}
+        >
+          Message agent
         </button>
       </div>
+
+      {agent && (
+        <MessengerSheet
+          open={chatOpen}
+          onClose={() => setChatOpen(false)}
+          agent={agent}
+          property={property}
+        />
+      )}
     </div>
+  );
+}
+
+function FavIcon({ filled }: { filled: boolean }) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
   );
 }
 
