@@ -9,6 +9,7 @@ import PhotoCarousel from "../components/PhotoCarousel";
 import MiniPropertyCard from "../components/MiniPropertyCard";
 import AgentCard from "../components/AgentCard";
 import MessengerSheet from "../components/MessengerSheet";
+import FinancingSection from "../components/FinancingSection";
 import { formatPrice } from "../utils/format";
 
 export default function PropertyDetailPage() {
@@ -133,6 +134,8 @@ export default function PropertyDetailPage() {
             Open in OpenStreetMap →
           </a>
         </section>
+
+        <FinancingSection property={property} />
 
         {agent && (
           <AgentCard

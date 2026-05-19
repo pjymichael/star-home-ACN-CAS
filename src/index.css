@@ -1910,6 +1910,324 @@ h2 {
   font-weight: 600;
 }
 
+/* ─── Loan calculator (FAB, sheet, inline) ──────────────────────────────── */
+/* The anchor mirrors the app-shell column so the FAB stays inside the phone
+ * frame on desktop instead of floating in the white background. pointer-events
+ * are disabled on the wrapper so clicks pass through everywhere except the
+ * actual button. */
+.calc-fab-anchor {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: var(--max-width);
+  pointer-events: none;
+  z-index: 35;
+}
+
+.calc-fab {
+  position: absolute;
+  right: 16px;
+  bottom: calc(var(--bottom-nav-h) + 16px + env(safe-area-inset-bottom, 0px));
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 24px rgba(10, 31, 68, 0.28);
+  pointer-events: auto;
+  transition: transform 0.1s, background 0.15s;
+}
+
+.calc-fab:hover {
+  background: var(--brand-soft);
+}
+
+.calc-fab:active {
+  transform: scale(0.95);
+}
+
+/* Move FAB above the compare bar when it's showing so they don't overlap */
+.app-shell--compare-active .calc-fab {
+  bottom: calc(var(--bottom-nav-h) + 90px + env(safe-area-inset-bottom, 0px));
+}
+
+.loan-sheet {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  max-height: 92vh;
+}
+
+.loan-sheet__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.loan-sheet__title {
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--ink);
+}
+
+.loan-sheet__sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.loan-sheet__close {
+  background: var(--bg);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+
+.loan-sheet__body {
+  padding: 16px 18px 22px;
+  overflow-y: auto;
+}
+
+.loan-context {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.loan-context__row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.loan-calc {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.loan-calc__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.loan-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.loan-field__label {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.loan-field__input {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0 14px;
+  background: #fff;
+  transition: border-color 0.15s;
+}
+
+.loan-field__input:focus-within {
+  border-color: var(--brand);
+}
+
+.loan-field__input input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 12px 0;
+  font-size: 16px;
+  background: transparent;
+  width: 100%;
+  min-width: 0;
+}
+
+.loan-field__input input::-webkit-outer-spin-button,
+.loan-field__input input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.loan-field__input input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.loan-field__affix,
+.loan-field__suffix {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.loan-field__affix {
+  margin-right: 6px;
+}
+
+.loan-field__suffix {
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
+.loan-result {
+  background: var(--bg);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.loan-result__label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.loan-result__value {
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--brand);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.loan-result__unit {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.loan-result__hint {
+  margin: 0;
+  font-size: 13px;
+}
+
+.loan-breakdown {
+  display: flex;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--line);
+}
+
+.loan-breakdown__segment {
+  height: 100%;
+}
+
+.loan-breakdown__principal {
+  background: var(--brand);
+}
+
+.loan-breakdown__interest {
+  background: var(--accent);
+}
+
+.loan-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 12px;
+}
+
+.loan-stat {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.loan-stat__swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.loan-stat__swatch--principal {
+  background: var(--brand);
+}
+
+.loan-stat__swatch--interest {
+  background: var(--accent);
+}
+
+.loan-stat__label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.loan-stat__value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.loan-calc__legal {
+  margin: 0;
+}
+
+/* ─── Financing section on property detail ─────────────────────────────── */
+.financing-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.financing-summary {
+  background: var(--bg);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.financing-summary__monthly {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--brand);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.financing-summary__unit {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.financing-section__legal {
+  margin: 0;
+}
+
 /* ─── Discover (swipe deck) ─────────────────────────────────────────────── */
 .page--discover {
   padding-bottom: calc(var(--bottom-nav-h) + 24px);

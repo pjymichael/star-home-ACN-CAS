@@ -2,6 +2,7 @@ import { useCallback, useSyncExternalStore } from "react";
 import { clearBookmarks } from "./useBookmarks";
 import { clearRecent } from "./useRecentlyViewed";
 import { clearDiscover } from "./useDiscover";
+import { clearLoanPrefs } from "./useLoanPrefs";
 
 const KEY = "starhome.auth";
 
@@ -75,11 +76,12 @@ export function useAuth() {
   }, []);
 
   const signOut = useCallback(() => {
-    // Favourites, history, and the Discover taste profile all belong to the
-    // account — wipe them so the next guest or returning user starts fresh.
+    // Everything tied to the account is wiped so the next guest or returning
+    // user starts fresh.
     clearBookmarks();
     clearRecent();
     clearDiscover();
+    clearLoanPrefs();
     setState(null);
   }, []);
 

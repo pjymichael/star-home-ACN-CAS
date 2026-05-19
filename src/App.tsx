@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 import { useCompare } from "./hooks/useCompare";
 import { AuthGateProvider } from "./components/AuthGateProvider";
+import { LoanCalculatorProvider } from "./components/LoanCalculatorProvider";
 import BottomNav from "./components/BottomNav";
 import CompareBar from "./components/CompareBar";
 import LandingPage from "./pages/LandingPage";
@@ -49,6 +50,7 @@ export default function App() {
 
   return (
     <AuthGateProvider>
+      <LoanCalculatorProvider>
       <ScrollToTop />
       <div className={`app-shell${showCompareBar ? " app-shell--compare-active" : ""}`}>
         <Routes>
@@ -81,6 +83,7 @@ export default function App() {
         {showCompareBar && <CompareBar />}
         {showNav && <BottomNav />}
       </div>
+      </LoanCalculatorProvider>
     </AuthGateProvider>
   );
 }
