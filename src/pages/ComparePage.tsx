@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import type { Property } from "../types";
 import { useCompare } from "../hooks/useCompare";
 import { useBookmarks } from "../hooks/useBookmarks";
+import { useAuthGate } from "../components/AuthGateProvider";
 import { findProperty } from "../data/properties";
 import { formatPrice } from "../utils/format";
 
@@ -68,6 +69,7 @@ export default function ComparePage() {
   const navigate = useNavigate();
   const { ids, toggle, clear } = useCompare();
   const { has: isFav, toggle: toggleFav } = useBookmarks();
+  const { requireAuth } = useAuthGate();
 
   const properties = ids
     .map(findProperty)
@@ -131,7 +133,12 @@ export default function ComparePage() {
                   type="button"
                   className={`compare-fav${isFav(p.id) ? " is-active" : ""}`}
                   aria-label={isFav(p.id) ? "Remove from favourites" : "Add to favourites"}
-                  onClick={() => toggleFav(p.id)}
+                  onClick={() =>
+                    requireAuth({
+                      feature: "Sign in to save this to your favourites",
+                      onSuccess: () => toggleFav(p.id),
+                    })
+                  }
                 >
                   ♥
                 </button>

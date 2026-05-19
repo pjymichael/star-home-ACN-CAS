@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
 const KEY = "starhome.recent";
 const MAX = 20;
@@ -24,33 +24,60 @@ function read(): RecentEntry[] {
 }
 
 function write(entries: RecentEntry[]): void {
-  localStorage.setItem(KEY, JSON.stringify(entries));
+  try {
+    localStorage.setItem(KEY, JSON.stringify(entries));
+  } catch {
+    // ignore quota errors
+  }
+}
+
+let state: RecentEntry[] = read();
+const listeners = new Set<() => void>();
+
+function notify(): void {
+  for (const l of listeners) l();
+}
+
+function setState(next: RecentEntry[]): void {
+  state = next;
+  write(next);
+  notify();
+}
+
+function subscribe(cb: () => void): () => void {
+  listeners.add(cb);
+  return () => {
+    listeners.delete(cb);
+  };
+}
+
+function getSnapshot(): RecentEntry[] {
+  return state;
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (e) => {
+    if (e.key === KEY) {
+      state = read();
+      notify();
+    }
+  });
+}
+
+/** Used by signOut to wipe history when a user logs out. */
+export function clearRecent(): void {
+  setState([]);
 }
 
 export function useRecentlyViewed() {
-  const [entries, setEntries] = useState<RecentEntry[]>(() => read());
-
-  useEffect(() => {
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === KEY) setEntries(read());
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
+  const entries = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
   const record = useCallback((id: string) => {
-    setEntries((prev) => {
-      const filtered = prev.filter((e) => e.id !== id);
-      const next: RecentEntry[] = [{ id, viewedAt: Date.now() }, ...filtered].slice(0, MAX);
-      write(next);
-      return next;
-    });
+    const filtered = state.filter((e) => e.id !== id);
+    setState([{ id, viewedAt: Date.now() }, ...filtered].slice(0, MAX));
   }, []);
 
-  const clear = useCallback(() => {
-    write([]);
-    setEntries([]);
-  }, []);
+  const clear = useCallback(() => setState([]), []);
 
   return { entries, record, clear };
 }

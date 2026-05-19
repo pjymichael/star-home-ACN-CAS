@@ -1,17 +1,40 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import { useAuthGate } from "./AuthGateProvider";
 
 export default function BottomNav() {
+  const navigate = useNavigate();
+  const { isVerified } = useAuth();
+  const { requireAuth } = useAuthGate();
+
+  const gate = (e: React.MouseEvent, to: string, feature: string) => {
+    if (isVerified) return; // let NavLink handle navigation
+    e.preventDefault();
+    requireAuth({
+      feature,
+      onSuccess: () => navigate(to),
+    });
+  };
+
   return (
     <nav className="bottom-nav" aria-label="Primary">
       <NavLink to="/search" className="bottom-nav__item">
         <SearchIcon />
         <span>Explore</span>
       </NavLink>
-      <NavLink to="/recent" className="bottom-nav__item">
+      <NavLink
+        to="/recent"
+        className="bottom-nav__item"
+        onClick={(e) => gate(e, "/recent", "Sign in to keep track of properties you've viewed")}
+      >
         <ClockIcon />
         <span>Recent</span>
       </NavLink>
-      <NavLink to="/bookmarks" className="bottom-nav__item">
+      <NavLink
+        to="/bookmarks"
+        className="bottom-nav__item"
+        onClick={(e) => gate(e, "/bookmarks", "Sign in to save your favourite properties")}
+      >
         <HeartIcon />
         <span>Favourites</span>
       </NavLink>

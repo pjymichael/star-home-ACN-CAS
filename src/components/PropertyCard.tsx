@@ -3,6 +3,7 @@ import type { Property } from "../types";
 import { formatPrice } from "../utils/format";
 import { useBookmarks } from "../hooks/useBookmarks";
 import { useCompare } from "../hooks/useCompare";
+import { useAuthGate } from "./AuthGateProvider";
 import CardCarousel from "./CardCarousel";
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
 export default function PropertyCard({ property }: Props) {
   const { has: hasFav, toggle: toggleFav } = useBookmarks();
   const { has: hasCompare, toggle: toggleCompare, count, max } = useCompare();
+  const { requireAuth } = useAuthGate();
   const saved = hasFav(property.id);
   const selected = hasCompare(property.id);
   const to = `/property/${property.id}`;
@@ -48,7 +50,10 @@ export default function PropertyCard({ property }: Props) {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            toggleFav(property.id);
+            requireAuth({
+              feature: "Sign in to save this to your favourites",
+              onSuccess: () => toggleFav(property.id),
+            });
           }}
         >
           <HeartIcon filled={saved} />

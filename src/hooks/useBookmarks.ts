@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
 const KEY = "starhome.bookmarks";
 
@@ -13,36 +13,66 @@ function read(): string[] {
   }
 }
 
+function write(ids: string[]): void {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(ids));
+  } catch {
+    // ignore quota errors
+  }
+}
+
+let state: string[] = read();
+const listeners = new Set<() => void>();
+
+function notify(): void {
+  for (const l of listeners) l();
+}
+
+function setState(next: string[]): void {
+  state = next;
+  write(next);
+  notify();
+}
+
+function subscribe(cb: () => void): () => void {
+  listeners.add(cb);
+  return () => {
+    listeners.delete(cb);
+  };
+}
+
+function getSnapshot(): string[] {
+  return state;
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (e) => {
+    if (e.key === KEY) {
+      state = read();
+      notify();
+    }
+  });
+}
+
+/** Used by signOut to wipe bookmarks when a user logs out. */
+export function clearBookmarks(): void {
+  setState([]);
+}
+
 export function useBookmarks() {
-  const [ids, setIds] = useState<string[]>(() => read());
-
-  useEffect(() => {
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === KEY) setIds(read());
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
-
-  const persist = useCallback((next: string[]) => {
-    setIds(next);
-    localStorage.setItem(KEY, JSON.stringify(next));
-  }, []);
-
-  const toggle = useCallback(
-    (id: string) => {
-      setIds((prev) => {
-        const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
-        localStorage.setItem(KEY, JSON.stringify(next));
-        return next;
-      });
-    },
-    [],
-  );
+  const ids = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
   const has = useCallback((id: string) => ids.includes(id), [ids]);
 
-  const clear = useCallback(() => persist([]), [persist]);
+  const toggle = useCallback((id: string) => {
+    if (state.includes(id)) {
+      setState(state.filter((x) => x !== id));
+    } else {
+      setState([...state, id]);
+    }
+  }, []);
+
+  const clear = useCallback(() => setState([]), []);
 
   return { ids, toggle, has, clear };
 }

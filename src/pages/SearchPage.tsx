@@ -5,7 +5,7 @@ import { useAuth } from "../hooks/useAuth";
 
 export default function SearchPage() {
   const navigate = useNavigate();
-  const { phone, signOut } = useAuth();
+  const { name, isVerified, signOut } = useAuth();
   const [query, setQuery] = useState("");
 
   const suggestions = useMemo(() => searchAreas(query).slice(0, 8), [query]);
@@ -23,11 +23,32 @@ export default function SearchPage() {
       <header className="page__header">
         <div>
           <h1>Find your spot</h1>
-          <p className="muted">Welcome back{phone ? `, ${phone}` : ""}.</p>
+          <p className="muted">
+            {isVerified
+              ? `Welcome back${name ? `, ${name.split(" ")[0]}` : ""}.`
+              : "Browse as a guest, or sign in to save what you love."}
+          </p>
         </div>
-        <button type="button" className="link link--quiet" onClick={signOut}>
-          Sign out
-        </button>
+        {isVerified ? (
+          <button
+            type="button"
+            className="link link--quiet"
+            onClick={() => {
+              signOut();
+              navigate("/", { replace: true });
+            }}
+          >
+            Sign out
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="link link--quiet"
+            onClick={() => navigate("/auth?mode=signin")}
+          >
+            Sign in
+          </button>
+        )}
       </header>
 
       <form className="search-bar" onSubmit={onSubmit} role="search">

@@ -1,7 +1,9 @@
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
+import { AuthGateProvider } from "./components/AuthGateProvider";
 import BottomNav from "./components/BottomNav";
-import VerifyPage from "./pages/VerifyPage";
+import LandingPage from "./pages/LandingPage";
+import AuthPage from "./pages/AuthPage";
 import SearchPage from "./pages/SearchPage";
 import ResultsPage from "./pages/ResultsPage";
 import PropertyDetailPage from "./pages/PropertyDetailPage";
@@ -14,79 +16,50 @@ function RequireAuth({ children }: { children: JSX.Element }) {
   const { isVerified } = useAuth();
   const location = useLocation();
   if (!isVerified) {
-    return <Navigate to="/verify" replace state={{ from: location.pathname }} />;
+    const returnTo = encodeURIComponent(location.pathname + location.search);
+    return <Navigate to={`/auth?return=${returnTo}`} replace />;
   }
   return children;
 }
 
+// Routes where the bottom nav should NOT show
+const NO_NAV_ROUTES = new Set(["/", "/auth"]);
+
 export default function App() {
-  const { isVerified } = useAuth();
   const location = useLocation();
-  const showNav = isVerified && location.pathname !== "/verify";
+  const showNav = !NO_NAV_ROUTES.has(location.pathname);
 
   return (
-    <div className="app-shell">
-      <Routes>
-        <Route path="/verify" element={<VerifyPage />} />
-        <Route
-          path="/search"
-          element={
-            <RequireAuth>
-              <SearchPage />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/results"
-          element={
-            <RequireAuth>
-              <ResultsPage />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/property/:id"
-          element={
-            <RequireAuth>
-              <PropertyDetailPage />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/bookmarks"
-          element={
-            <RequireAuth>
-              <BookmarksPage />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/recent"
-          element={
-            <RequireAuth>
-              <RecentlyViewedPage />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/compare"
-          element={
-            <RequireAuth>
-              <ComparePage />
-            </RequireAuth>
-          }
-        />
-        <Route
-          path="/agent/:id"
-          element={
-            <RequireAuth>
-              <AgentDetailPage />
-            </RequireAuth>
-          }
-        />
-        <Route path="*" element={<Navigate to={isVerified ? "/search" : "/verify"} replace />} />
-      </Routes>
-      {showNav && <BottomNav />}
-    </div>
+    <AuthGateProvider>
+      <div className="app-shell">
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/results" element={<ResultsPage />} />
+          <Route path="/property/:id" element={<PropertyDetailPage />} />
+          <Route path="/agent/:id" element={<AgentDetailPage />} />
+          <Route path="/compare" element={<ComparePage />} />
+          <Route
+            path="/bookmarks"
+            element={
+              <RequireAuth>
+                <BookmarksPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/recent"
+            element={
+              <RequireAuth>
+                <RecentlyViewedPage />
+              </RequireAuth>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+        {showNav && <BottomNav />}
+      </div>
+    </AuthGateProvider>
   );
 }

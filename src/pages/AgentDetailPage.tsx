@@ -4,12 +4,20 @@ import { findAgent } from "../data/agents";
 import { PROPERTIES } from "../data/properties";
 import MiniPropertyCard from "../components/MiniPropertyCard";
 import MessengerSheet from "../components/MessengerSheet";
+import { useAuthGate } from "../components/AuthGateProvider";
 
 export default function AgentDetailPage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
   const agent = findAgent(id);
   const [chatOpen, setChatOpen] = useState(false);
+  const { requireAuth } = useAuthGate();
+
+  const openMessenger = () =>
+    requireAuth({
+      feature: "Sign in to message the agent — we verify everyone so they know they're talking to a real person.",
+      onSuccess: () => setChatOpen(true),
+    });
 
   if (!agent) {
     return (
@@ -53,7 +61,7 @@ export default function AgentDetailPage() {
         <a className="btn btn--ghost" href={`mailto:${agent.email}`}>
           Email
         </a>
-        <button type="button" className="btn btn--primary" onClick={() => setChatOpen(true)}>
+        <button type="button" className="btn btn--primary" onClick={openMessenger}>
           Message
         </button>
       </div>

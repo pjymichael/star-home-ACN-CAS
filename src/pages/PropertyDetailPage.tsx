@@ -4,6 +4,7 @@ import { findProperty, propertiesInArea } from "../data/properties";
 import { agentForArea } from "../data/agents";
 import { useBookmarks } from "../hooks/useBookmarks";
 import { useRecentlyViewed } from "../hooks/useRecentlyViewed";
+import { useAuthGate } from "../components/AuthGateProvider";
 import PhotoCarousel from "../components/PhotoCarousel";
 import MiniPropertyCard from "../components/MiniPropertyCard";
 import AgentCard from "../components/AgentCard";
@@ -15,9 +16,25 @@ export default function PropertyDetailPage() {
   const navigate = useNavigate();
   const { has, toggle } = useBookmarks();
   const { record } = useRecentlyViewed();
+  const { requireAuth } = useAuthGate();
   const [chatOpen, setChatOpen] = useState(false);
   const property = findProperty(id);
   const agent = property ? agentForArea(property.area) : null;
+
+  const handleFavourite = () => {
+    if (!property) return;
+    requireAuth({
+      feature: "Sign in to save this to your favourites",
+      onSuccess: () => toggle(property.id),
+    });
+  };
+
+  const openMessenger = () => {
+    requireAuth({
+      feature: "Sign in to message the agent — we verify everyone so they know they're talking to a real person.",
+      onSuccess: () => setChatOpen(true),
+    });
+  };
 
   useEffect(() => {
     if (property) record(property.id);
@@ -58,7 +75,7 @@ export default function PropertyDetailPage() {
       <button
         type="button"
         className={`save-fab${saved ? " is-active" : ""}`}
-        onClick={() => toggle(property.id)}
+        onClick={handleFavourite}
         aria-label={saved ? "Remove from favourites" : "Add to favourites"}
         aria-pressed={saved}
       >
@@ -121,7 +138,7 @@ export default function PropertyDetailPage() {
           <AgentCard
             agent={agent}
             property={property}
-            onMessage={() => setChatOpen(true)}
+            onMessage={openMessenger}
           />
         )}
 
@@ -150,7 +167,7 @@ export default function PropertyDetailPage() {
         <button
           type="button"
           className={`btn btn--ghost detail-foot__fav${saved ? " is-active" : ""}`}
-          onClick={() => toggle(property.id)}
+          onClick={handleFavourite}
           aria-pressed={saved}
         >
           <FavIcon filled={saved} />
@@ -159,7 +176,7 @@ export default function PropertyDetailPage() {
         <button
           type="button"
           className="btn btn--primary btn--block"
-          onClick={() => setChatOpen(true)}
+          onClick={openMessenger}
         >
           Message agent
         </button>

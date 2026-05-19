@@ -1,8 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useSyncExternalStore } from "react";
+import { clearBookmarks } from "./useBookmarks";
+import { clearRecent } from "./useRecentlyViewed";
 
 const KEY = "starhome.auth";
 
 interface AuthState {
+  name: string;
   phone: string;
   verifiedAt: number;
 }
@@ -11,9 +14,13 @@ function read(): AuthState | null {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as AuthState;
+    const parsed = JSON.parse(raw) as Partial<AuthState>;
     if (parsed && typeof parsed.phone === "string" && typeof parsed.verifiedAt === "number") {
-      return parsed;
+      return {
+        name: typeof parsed.name === "string" ? parsed.name : "",
+        phone: parsed.phone,
+        verifiedAt: parsed.verifiedAt,
+      };
     }
     return null;
   } catch {
@@ -21,27 +28,64 @@ function read(): AuthState | null {
   }
 }
 
+let state: AuthState | null = read();
+const listeners = new Set<() => void>();
+
+function notify(): void {
+  for (const l of listeners) l();
+}
+
+function setState(next: AuthState | null): void {
+  state = next;
+  try {
+    if (next === null) localStorage.removeItem(KEY);
+    else localStorage.setItem(KEY, JSON.stringify(next));
+  } catch {
+    // ignore quota errors
+  }
+  notify();
+}
+
+function subscribe(cb: () => void): () => void {
+  listeners.add(cb);
+  return () => {
+    listeners.delete(cb);
+  };
+}
+
+function getSnapshot(): AuthState | null {
+  return state;
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (e) => {
+    if (e.key === KEY) {
+      state = read();
+      notify();
+    }
+  });
+}
+
 export function useAuth() {
-  const [state, setState] = useState<AuthState | null>(() => read());
+  const value = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
-  useEffect(() => {
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === KEY) setState(read());
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
-
-  const signIn = useCallback((phone: string) => {
-    const next: AuthState = { phone, verifiedAt: Date.now() };
-    localStorage.setItem(KEY, JSON.stringify(next));
-    setState(next);
+  const signIn = useCallback((phone: string, name: string = "") => {
+    setState({ name, phone, verifiedAt: Date.now() });
   }, []);
 
   const signOut = useCallback(() => {
-    localStorage.removeItem(KEY);
+    // Favourites and history belong to the account — wipe them so the next
+    // guest visitor or returning user doesn't see them.
+    clearBookmarks();
+    clearRecent();
     setState(null);
   }, []);
 
-  return { phone: state?.phone ?? null, isVerified: state !== null, signIn, signOut };
+  return {
+    name: value?.name ?? null,
+    phone: value?.phone ?? null,
+    isVerified: value !== null,
+    signIn,
+    signOut,
+  };
 }
