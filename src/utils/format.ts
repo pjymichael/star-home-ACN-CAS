@@ -13,14 +13,14 @@ const fullGbp = new Intl.NumberFormat("en-GB", {
 
 export function formatPrice(price: number, listing: Listing): string {
   if (listing === "rent") {
-    return `${fullGbp.format(price)} pcm`;
+    return `${fullGbp.format(price)} / month`;
   }
   return fullGbp.format(price);
 }
 
 export function formatPriceShort(price: number, listing: Listing): string {
   if (listing === "rent") {
-    return `£${compact.format(price)} pcm`;
+    return `£${compact.format(price)} / mo`;
   }
   return `£${compact.format(price)}`;
 }

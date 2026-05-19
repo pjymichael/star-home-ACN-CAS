@@ -54,7 +54,7 @@ const ROWS: Row[] = [
     label: "£ per sqm",
     render: (p) => {
       const value = p.price / p.size;
-      return `£${Math.round(value).toLocaleString("en-GB")}${p.listing === "rent" ? " /mo" : ""}`;
+      return `£${Math.round(value).toLocaleString("en-GB")}${p.listing === "rent" ? " / month" : ""}`;
     },
     highlight: (p) => p.price / p.size,
     highlightDirection: "min",
