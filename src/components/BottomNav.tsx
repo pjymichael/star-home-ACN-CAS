@@ -8,19 +8,20 @@ export default function BottomNav() {
   const { requireAuth } = useAuthGate();
 
   const gate = (e: React.MouseEvent, to: string, feature: string) => {
-    if (isVerified) return; // let NavLink handle navigation
+    if (isVerified) return;
     e.preventDefault();
-    requireAuth({
-      feature,
-      onSuccess: () => navigate(to),
-    });
+    requireAuth({ feature, onSuccess: () => navigate(to) });
   };
 
   return (
-    <nav className="bottom-nav" aria-label="Primary">
+    <nav className="bottom-nav bottom-nav--4" aria-label="Primary">
       <NavLink to="/search" className="bottom-nav__item">
         <SearchIcon />
         <span>Explore</span>
+      </NavLink>
+      <NavLink to="/discover" className="bottom-nav__item">
+        <SparkleIcon />
+        <span>Discover</span>
       </NavLink>
       <NavLink
         to="/recent"
@@ -47,6 +48,15 @@ function SearchIcon() {
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <circle cx="11" cy="11" r="7" />
       <path d="m20 20-3.5-3.5" />
+    </svg>
+  );
+}
+
+function SparkleIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 3v4M12 17v4M3 12h4M17 12h4" />
+      <path d="M12 7l1.6 3.4L17 12l-3.4 1.6L12 17l-1.6-3.4L7 12l3.4-1.6z" fill="currentColor" stroke="none" />
     </svg>
   );
 }

@@ -12,6 +12,7 @@ import BookmarksPage from "./pages/BookmarksPage";
 import RecentlyViewedPage from "./pages/RecentlyViewedPage";
 import ComparePage from "./pages/ComparePage";
 import AgentDetailPage from "./pages/AgentDetailPage";
+import DiscoverPage from "./pages/DiscoverPage";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -46,6 +47,7 @@ export default function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/discover" element={<DiscoverPage />} />
           <Route path="/results" element={<ResultsPage />} />
           <Route path="/property/:id" element={<PropertyDetailPage />} />
           <Route path="/agent/:id" element={<AgentDetailPage />} />
