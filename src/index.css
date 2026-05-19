@@ -1923,6 +1923,12 @@ h2 {
   gap: 12px;
 }
 
+.discover-listing-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 4px;
+}
+
 .discover-progress {
   height: 4px;
   background: var(--line);

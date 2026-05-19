@@ -5,6 +5,7 @@ import { useDiscover } from "../hooks/useDiscover";
 import { useBookmarks } from "../hooks/useBookmarks";
 import { useAuthGate } from "../components/AuthGateProvider";
 import SwipeCard, { type SwipeCardHandle } from "../components/SwipeCard";
+import type { Listing } from "../types";
 
 export default function DiscoverPage() {
   const navigate = useNavigate();
@@ -12,10 +13,11 @@ export default function DiscoverPage() {
   const { toggle: toggleFav, has: hasFav } = useBookmarks();
   const { requireAuth } = useAuthGate();
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [listing, setListing] = useState<Listing>("rent");
   const feedbackTimer = useRef<number | null>(null);
 
   const deck = useMemo(() => {
-    const unseen = PROPERTIES.filter((p) => !has(p.id));
+    const unseen = PROPERTIES.filter((p) => p.listing === listing && !has(p.id));
     const hasSignal =
       state.likedIds.length + state.passedIds.length > 0;
     if (!hasSignal) {
@@ -40,7 +42,12 @@ export default function DiscoverPage() {
     // We intentionally don't include `has` and `score` in deps — they would
     // resort the deck on every render and undo card animation continuity.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.likedIds.length, state.passedIds.length]);
+  }, [listing, state.likedIds.length, state.passedIds.length]);
+
+  const totalInListing = useMemo(
+    () => PROPERTIES.filter((p) => p.listing === listing).length,
+    [listing],
+  );
 
   const top = deck[0];
   const lastActionId = useRef<string | null>(null);
@@ -96,8 +103,10 @@ export default function DiscoverPage() {
   };
 
   const seenCount = state.likedIds.length + state.passedIds.length;
-  const totalCount = PROPERTIES.length;
-  const progress = Math.round((seenCount / totalCount) * 100);
+  const seenInListing = totalInListing - deck.length;
+  const progress = totalInListing > 0
+    ? Math.round((seenInListing / totalInListing) * 100)
+    : 0;
 
   return (
     <div className="page page--discover">
@@ -115,6 +124,29 @@ export default function DiscoverPage() {
         )}
       </header>
 
+      <div className="discover-listing-row">
+        <div className="toggle" role="tablist" aria-label="Rent or buy">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={listing === "rent"}
+            className={`toggle__btn${listing === "rent" ? " is-active" : ""}`}
+            onClick={() => setListing("rent")}
+          >
+            Rent
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={listing === "buy"}
+            className={`toggle__btn${listing === "buy" ? " is-active" : ""}`}
+            onClick={() => setListing("buy")}
+          >
+            Buy
+          </button>
+        </div>
+      </div>
+
       <div className="discover-progress" aria-hidden="true">
         <div className="discover-progress__bar" style={{ width: `${progress}%` }} />
       </div>
@@ -122,14 +154,17 @@ export default function DiscoverPage() {
       <div className="swipe-stage">
         {deck.length === 0 ? (
           <div className="empty empty--big">
-            <h3>You've seen everything</h3>
+            <h3>You've seen every {listing === "rent" ? "rental" : "property for sale"}</h3>
             <p>
-              You swiped through every London property in our catalogue.
-              Reset to start again, or check your favourites.
+              Try switching to {listing === "rent" ? "buy" : "rent"}, reset the deck, or check your favourites.
             </p>
             <div className="discover-empty-actions">
-              <button type="button" className="btn btn--ghost" onClick={reset}>
-                Reset deck
+              <button
+                type="button"
+                className="btn btn--ghost"
+                onClick={() => setListing(listing === "rent" ? "buy" : "rent")}
+              >
+                Switch to {listing === "rent" ? "Buy" : "Rent"}
               </button>
               <button type="button" className="btn btn--primary" onClick={() => navigate("/bookmarks")}>
                 See favourites
