@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { findProperty, propertiesInArea } from "../data/properties";
 import { agentForArea } from "../data/agents";
+import { statsFor } from "../data/propertyStats";
 import { useBookmarks } from "../hooks/useBookmarks";
 import { useRecentlyViewed } from "../hooks/useRecentlyViewed";
 import { useAuthGate } from "../components/AuthGateProvider";
@@ -93,6 +94,7 @@ export default function PropertyDetailPage() {
           <h1>{property.name}</h1>
           <div className="detail-address">{property.address} · {property.area}</div>
           <div className="detail-price">{formatPrice(property.price, property.listing)}</div>
+          <PropertyStats property={property} isFavourited={saved} />
         </div>
 
         <div className="stat-row">
@@ -194,6 +196,52 @@ export default function PropertyDetailPage() {
         />
       )}
     </div>
+  );
+}
+
+function PropertyStats({
+  property,
+  isFavourited,
+}: {
+  property: Parameters<typeof statsFor>[0];
+  isFavourited: boolean;
+}) {
+  const { views, favourites } = statsFor(property);
+  // The current visitor always adds +1 to views (they're looking at it).
+  // Favourites only gets +1 if they've actually saved it.
+  const displayViews = views + 1;
+  const displayFavs = favourites + (isFavourited ? 1 : 0);
+  return (
+    <div className="property-stats" aria-label="Property popularity">
+      <span className="property-stat">
+        <EyeIcon />
+        <strong>{displayViews.toLocaleString("en-GB")}</strong>
+        <span className="property-stat__label">views</span>
+      </span>
+      <span className="property-stats__sep" aria-hidden="true">·</span>
+      <span className="property-stat">
+        <HeartIconSm />
+        <strong>{displayFavs.toLocaleString("en-GB")}</strong>
+        <span className="property-stat__label">saved</span>
+      </span>
+    </div>
+  );
+}
+
+function EyeIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function HeartIconSm() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
   );
 }
 

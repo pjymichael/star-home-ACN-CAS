@@ -1814,6 +1814,38 @@ h2 {
   letter-spacing: -0.01em;
 }
 
+.property-stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.property-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.property-stat strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.property-stat__label {
+  color: var(--muted);
+}
+
+.property-stat svg {
+  color: var(--accent-soft);
+}
+
+.property-stats__sep {
+  color: var(--line);
+}
+
 .stat-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
