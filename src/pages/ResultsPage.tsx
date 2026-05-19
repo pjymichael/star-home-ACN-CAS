@@ -7,15 +7,12 @@ import { EMPTY_FILTERS } from "../types";
 import PropertyCard from "../components/PropertyCard";
 import FilterSheet from "../components/FilterSheet";
 import MapView from "../components/MapView";
-import CompareBar from "../components/CompareBar";
-import { useCompare } from "../hooks/useCompare";
 
 type ViewMode = "list" | "map";
 
 export default function ResultsPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const { count: compareCount } = useCompare();
   const areaName = params.get("area") ?? "";
   const area = findArea(areaName) ?? AREAS[0];
 
@@ -79,7 +76,7 @@ export default function ResultsPage() {
     filters.bedrooms.length;
 
   return (
-    <div className={`page page--results${compareCount > 0 ? " has-compare-bar" : ""}`}>
+    <div className="page page--results">
       <header className="results-header">
         <button type="button" className="back" onClick={() => navigate("/search")} aria-label="Back to search">
           ‹
@@ -198,7 +195,6 @@ export default function ResultsPage() {
         onApply={setFilters}
         properties={all}
       />
-      <CompareBar />
     </div>
   );
 }

@@ -2572,7 +2572,12 @@ h2 {
   margin: 0 auto;
 }
 
-.page--results.has-compare-bar {
+/* When the floating compare bar is visible, every page that shows property
+ * cards needs extra bottom padding so the last card doesn't sit underneath it.
+ */
+.app-shell--compare-active .page--results,
+.app-shell--compare-active .page--bookmarks,
+.app-shell--compare-active .page--recent {
   padding-bottom: calc(var(--bottom-nav-h) + 84px);
 }
 

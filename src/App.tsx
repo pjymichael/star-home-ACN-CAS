@@ -1,8 +1,10 @@
 import { useEffect } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
+import { useCompare } from "./hooks/useCompare";
 import { AuthGateProvider } from "./components/AuthGateProvider";
 import BottomNav from "./components/BottomNav";
+import CompareBar from "./components/CompareBar";
 import LandingPage from "./pages/LandingPage";
 import AuthPage from "./pages/AuthPage";
 import SearchPage from "./pages/SearchPage";
@@ -35,14 +37,20 @@ function RequireAuth({ children }: { children: JSX.Element }) {
 // Routes where the bottom nav should NOT show
 const NO_NAV_ROUTES = new Set(["/", "/auth"]);
 
+// Routes where CompareBar should never appear (auth flow, landing, compare itself)
+const NO_COMPARE_BAR_ROUTES = new Set(["/", "/auth", "/compare"]);
+
 export default function App() {
   const location = useLocation();
+  const { count: compareCount } = useCompare();
   const showNav = !NO_NAV_ROUTES.has(location.pathname);
+  const showCompareBar =
+    compareCount > 0 && !NO_COMPARE_BAR_ROUTES.has(location.pathname);
 
   return (
     <AuthGateProvider>
       <ScrollToTop />
-      <div className="app-shell">
+      <div className={`app-shell${showCompareBar ? " app-shell--compare-active" : ""}`}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/auth" element={<AuthPage />} />
@@ -70,6 +78,7 @@ export default function App() {
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        {showCompareBar && <CompareBar />}
         {showNav && <BottomNav />}
       </div>
     </AuthGateProvider>

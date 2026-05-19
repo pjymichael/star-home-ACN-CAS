@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { PROPERTIES } from "../data/properties";
 import { useDiscover } from "../hooks/useDiscover";
 import { useBookmarks } from "../hooks/useBookmarks";
+import { useAuth } from "../hooks/useAuth";
 import { useAuthGate } from "../components/AuthGateProvider";
 import SwipeCard, { type SwipeCardHandle } from "../components/SwipeCard";
 import type { Listing } from "../types";
@@ -11,6 +12,7 @@ export default function DiscoverPage() {
   const navigate = useNavigate();
   const { state, has, like, pass, undo, reset, score } = useDiscover();
   const { toggle: toggleFav, has: hasFav } = useBookmarks();
+  const { isVerified } = useAuth();
   const { requireAuth } = useAuthGate();
   const [feedback, setFeedback] = useState<string | null>(null);
   const [listing, setListing] = useState<Listing>("rent");
@@ -88,6 +90,21 @@ export default function DiscoverPage() {
   const onPassButton = () => {
     if (!top) return;
     topCardRef.current?.swipeLeft();
+  };
+
+  /**
+   * Called by the SwipeCard *before* it releases on a drag-right gesture.
+   * Returns `false` to cancel the release and snap the card back to centre.
+   * Guests get the auth sheet here, and the swipe animation auto-fires after
+   * a successful sign-in.
+   */
+  const onBeforeDragLike = (): boolean => {
+    if (isVerified) return true;
+    requireAuth({
+      feature: "Sign in to save the homes you love",
+      onSuccess: () => topCardRef.current?.swipeRight(),
+    });
+    return false;
   };
 
   const handleUndo = () => {
@@ -188,6 +205,7 @@ export default function DiscoverPage() {
                   onLike={commitLike}
                   onPass={commitPass}
                   onOpen={handleOpen}
+                  onBeforeLike={isTop ? onBeforeDragLike : undefined}
                 />
               );
             })}

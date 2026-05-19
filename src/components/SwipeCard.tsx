@@ -19,13 +19,17 @@ interface Props {
   depth: number;
   /** Top card is interactive — back-of-stack cards are decorative only. */
   active: boolean;
+  /** Optional gatekeeper for a drag-right release. Return false to cancel
+   *  the release (the card snaps back to centre). The handler can also kick
+   *  off a side-effect like opening an auth modal. */
+  onBeforeLike?: () => boolean;
 }
 
 const SWIPE_THRESHOLD = 110; // px
 const RELEASE_MS = 320;
 
 const SwipeCard = forwardRef<SwipeCardHandle, Props>(function SwipeCard(
-  { property, matchScore, onLike, onPass, onOpen, depth, active },
+  { property, matchScore, onLike, onPass, onOpen, depth, active, onBeforeLike },
   ref,
 ) {
   const [dx, setDx] = useState(0);
@@ -67,7 +71,14 @@ const SwipeCard = forwardRef<SwipeCardHandle, Props>(function SwipeCard(
   const finish = () => {
     start.current = null;
     if (Math.abs(dx) > SWIPE_THRESHOLD) {
-      release(dx > 0 ? "like" : "pass");
+      const dir = dx > 0 ? "like" : "pass";
+      if (dir === "like" && onBeforeLike && onBeforeLike() === false) {
+        // Gatekeeper rejected the release — snap back to centre.
+        setDx(0);
+        setDy(0);
+        return;
+      }
+      release(dir);
     } else {
       setDx(0);
       setDy(0);
