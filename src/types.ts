@@ -66,3 +66,15 @@ export interface Agent {
   rating: number;
   reviewCount: number;
 }
+
+export interface Review {
+  id: string;
+  reviewerName: string;
+  /** Whether the reviewer was buying or selling when they worked with the agent */
+  type: "buyer" | "seller";
+  /** 1–5 */
+  rating: number;
+  /** Days since the review was posted — converted to "x weeks ago" at render time */
+  daysAgo: number;
+  text: string;
+}

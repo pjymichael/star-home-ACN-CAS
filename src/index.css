@@ -1910,6 +1910,133 @@ h2 {
   font-weight: 600;
 }
 
+/* ─── Reviews on agent profile ──────────────────────────────────────────── */
+.reviews-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reviews-section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.reviews-section__head h2 {
+  margin: 0;
+}
+
+.reviews-section__summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.reviews-section__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent-soft);
+  font-weight: 700;
+}
+
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.review-card {
+  background: var(--bg);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.review-card__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.review-card__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.review-card__id {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.review-card__name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.review-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.review-card__tag {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.review-card__tag--buyer {
+  background: rgba(10, 31, 68, 0.1);
+  color: var(--brand);
+}
+
+.review-card__tag--seller {
+  background: rgba(197, 160, 89, 0.18);
+  color: var(--accent-soft);
+}
+
+.review-card__sep {
+  color: var(--muted);
+}
+
+.review-stars {
+  color: var(--accent-soft);
+  display: inline-flex;
+  gap: 1px;
+  flex-shrink: 0;
+}
+
+.review-card__text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
 /* ─── Messenger sheet ───────────────────────────────────────────────────── */
 .messenger .sheet__panel {
   padding: 0;

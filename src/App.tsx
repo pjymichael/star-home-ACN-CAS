@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 import { AuthGateProvider } from "./components/AuthGateProvider";
@@ -11,6 +12,14 @@ import BookmarksPage from "./pages/BookmarksPage";
 import RecentlyViewedPage from "./pages/RecentlyViewedPage";
 import ComparePage from "./pages/ComparePage";
 import AgentDetailPage from "./pages/AgentDetailPage";
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname]);
+  return null;
+}
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { isVerified } = useAuth();
@@ -31,6 +40,7 @@ export default function App() {
 
   return (
     <AuthGateProvider>
+      <ScrollToTop />
       <div className="app-shell">
         <Routes>
           <Route path="/" element={<LandingPage />} />

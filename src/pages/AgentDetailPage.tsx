@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { findAgent } from "../data/agents";
 import { PROPERTIES } from "../data/properties";
+import { reviewsFor } from "../data/reviews";
 import MiniPropertyCard from "../components/MiniPropertyCard";
 import MessengerSheet from "../components/MessengerSheet";
+import ReviewCard from "../components/ReviewCard";
 import { useAuthGate } from "../components/AuthGateProvider";
 
 export default function AgentDetailPage() {
@@ -11,7 +13,10 @@ export default function AgentDetailPage() {
   const navigate = useNavigate();
   const agent = findAgent(id);
   const [chatOpen, setChatOpen] = useState(false);
+  const [reviewsExpanded, setReviewsExpanded] = useState(false);
   const { requireAuth } = useAuthGate();
+
+  const reviews = useMemo(() => (agent ? reviewsFor(agent, 8) : []), [agent]);
 
   const openMessenger = () =>
     requireAuth({
@@ -103,6 +108,34 @@ export default function AgentDetailPage() {
         </ul>
       </section>
 
+      <section className="detail-section reviews-section">
+        <div className="reviews-section__head">
+          <h2>Reviews</h2>
+          <div className="reviews-section__summary">
+            <span className="reviews-section__rating">
+              <StarFilled /> {agent.rating.toFixed(1)}
+            </span>
+            <span className="muted">· {agent.reviewCount} total</span>
+          </div>
+        </div>
+        <div className="reviews-list">
+          {(reviewsExpanded ? reviews : reviews.slice(0, 4)).map((r) => (
+            <ReviewCard key={r.id} review={r} />
+          ))}
+        </div>
+        {reviews.length > 4 && (
+          <button
+            type="button"
+            className="btn btn--ghost btn--block"
+            onClick={() => setReviewsExpanded((v) => !v)}
+          >
+            {reviewsExpanded
+              ? "Show fewer reviews"
+              : `View ${reviews.length - 4} more review${reviews.length - 4 === 1 ? "" : "s"}`}
+          </button>
+        )}
+      </section>
+
       {listings.length > 0 && (
         <section className="similar-properties">
           <div className="similar-properties__head">
@@ -125,5 +158,13 @@ export default function AgentDetailPage() {
         />
       )}
     </div>
+  );
+}
+
+function StarFilled() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2L12 16.8 5.7 21l2.3-7.2-6-4.4h7.6z" />
+    </svg>
   );
 }
