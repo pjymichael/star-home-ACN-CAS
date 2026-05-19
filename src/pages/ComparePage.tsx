@@ -2,7 +2,10 @@ import { Link, useNavigate } from "react-router-dom";
 import type { Property } from "../types";
 import { useCompare } from "../hooks/useCompare";
 import { useBookmarks } from "../hooks/useBookmarks";
+import { useAuth } from "../hooks/useAuth";
+import { useLoanPrefs, monthlyPayment } from "../hooks/useLoanPrefs";
 import { useAuthGate } from "../components/AuthGateProvider";
+import { useLoanCalculator } from "../components/LoanCalculatorProvider";
 import { findProperty } from "../data/properties";
 import { formatPrice } from "../utils/format";
 
@@ -69,7 +72,18 @@ export default function ComparePage() {
   const navigate = useNavigate();
   const { ids, toggle, clear } = useCompare();
   const { has: isFav, toggle: toggleFav } = useBookmarks();
+  const { isVerified } = useAuth();
+  const { prefs } = useLoanPrefs();
   const { requireAuth } = useAuthGate();
+  const { open: openCalculator } = useLoanCalculator();
+  const hasLoanPrefs = prefs.tenureYears != null && prefs.interestRate != null;
+
+  /** Returns the monthly mortgage payment for a buy property, or null. */
+  function mortgageOf(p: Property): number | null {
+    if (p.listing !== "buy" || !hasLoanPrefs) return null;
+    const loan = Math.round(p.price * 0.4);
+    return monthlyPayment(loan, prefs.interestRate!, prefs.tenureYears!);
+  }
 
   const properties = ids
     .map(findProperty)
@@ -99,6 +113,16 @@ export default function ComparePage() {
     const pick = row.highlightDirection === "max" ? Math.max(...values) : Math.min(...values);
     return pick;
   });
+
+  // Mortgage row winner: the lowest monthly payment across the buy properties.
+  const mortgageWinner: number | null = (() => {
+    if (!hasLoanPrefs || properties.length < 2) return null;
+    const values = properties
+      .map((p) => mortgageOf(p))
+      .filter((v): v is number => v != null);
+    if (values.length < 2) return null;
+    return Math.min(...values);
+  })();
 
   const colWidth = Math.max(160, Math.min(220, 320 / properties.length));
 
@@ -174,6 +198,72 @@ export default function ComparePage() {
             })}
           </div>
         ))}
+
+        {/* Estimated monthly mortgage — buy only, gated by auth + saved prefs */}
+        <div className="compare-row">
+          <div className="compare-cell compare-cell--label">Mortgage</div>
+          {properties.map((p) => {
+            if (p.listing !== "buy") {
+              return (
+                <div key={p.id} className="compare-cell compare-cell--muted">
+                  —
+                </div>
+              );
+            }
+            if (!isVerified) {
+              return (
+                <div key={p.id} className="compare-cell">
+                  <button
+                    type="button"
+                    className="link compare-prompt"
+                    onClick={() =>
+                      requireAuth({
+                        feature: "Sign in to estimate the monthly mortgage for this property",
+                        onSuccess: () => openCalculator(p),
+                      })
+                    }
+                  >
+                    Sign in to calculate
+                  </button>
+                </div>
+              );
+            }
+            if (!hasLoanPrefs) {
+              return (
+                <div key={p.id} className="compare-cell">
+                  <button
+                    type="button"
+                    className="link compare-prompt"
+                    onClick={() => openCalculator(p)}
+                  >
+                    Set tenure &amp; rate
+                  </button>
+                </div>
+              );
+            }
+            const monthly = mortgageOf(p);
+            if (monthly == null) {
+              return (
+                <div key={p.id} className="compare-cell compare-cell--muted">
+                  —
+                </div>
+              );
+            }
+            const isWinner = mortgageWinner != null && monthly === mortgageWinner;
+            return (
+              <div
+                key={p.id}
+                className={`compare-cell${isWinner ? " is-winner" : ""}`}
+              >
+                {formatPrice(monthly, "rent")}
+                <span className="compare-cell__hint">
+                  40 % loan · {prefs.tenureYears}y · {prefs.interestRate}%
+                </span>
+                {isWinner && <span className="compare-best">Best</span>}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
